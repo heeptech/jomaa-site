@@ -276,11 +276,15 @@ app.get("/articles", (req, res) => {
   const query = String(req.query.q || "").trim().toLowerCase();
   const category = String(req.query.category || "").trim();
   const articles = getPublishedArticles();
-  const configuredCategories = res.locals.settings.categories || [];
-  const fallbackCategory = configuredCategories[0] || "مقالات";
+  const defaultCategories = ["مقالات", "دراسات", "تحليلات"];
+  const configuredCategories = Array.isArray(res.locals.settings.categories)
+    ? res.locals.settings.categories
+    : [];
+  const fallbackCategory = configuredCategories[0] || defaultCategories[0];
   const allCategories = [
     ...configuredCategories,
-    ...articles.map((article) => article.category || fallbackCategory)
+    ...articles.map((article) => article.category || fallbackCategory),
+    ...defaultCategories
   ].filter((item, index, list) => item && list.indexOf(item) === index);
 
   const filtered = articles.filter((article) => {

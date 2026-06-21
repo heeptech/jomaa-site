@@ -494,6 +494,10 @@ select {
   border-color: var(--primary-color);
 }
 
+.articles-filter {
+  margin-bottom: 28px;
+}
+
 input,
 textarea,
 select {
