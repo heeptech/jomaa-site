@@ -32,6 +32,7 @@
             <input type="text" name="authorName" value="<%= settings.authorName %>" required>
           </label>
         </div>
+
         <div class="form-grid">
           <label>
             رفع صورة اللوغو
@@ -50,6 +51,26 @@
             <img src="<%= settings.logoUrl %>" alt="اللوغو الحالي">
           </div>
         <% } %>
+
+        <div class="form-grid">
+          <label>
+            الصورة الشخصية في الصفحة الرئيسية
+            <input type="file" name="heroImageFile" accept="image/png,image/jpeg,image/webp">
+            <small>يفضل PNG بخلفية شفافة أو صورة رسمية واضحة.</small>
+          </label>
+          <label>
+            رابط الصورة الشخصية
+            <input type="text" name="heroImageUrl" value="<%= settings.heroImageUrl || '' %>" placeholder="/uploads/person.png أو https://...">
+            <small>اتركه فارغاً إذا رفعت صورة من الجهاز.</small>
+          </label>
+        </div>
+        <% if (settings.heroImageUrl) { %>
+          <div class="logo-preview hero-image-preview">
+            <span>الصورة الشخصية الحالية</span>
+            <img src="<%= settings.heroImageUrl %>" alt="الصورة الشخصية الحالية">
+          </div>
+        <% } %>
+
         <label>
           عنوان الصفحة الرئيسية
           <input type="text" name="heroTitle" value="<%= settings.heroTitle %>" required>
@@ -66,6 +87,11 @@
           حسابات السوشال ميديا في صفحة من نحن
           <textarea name="socialLinks" rows="5" placeholder="Facebook | https://facebook.com/username&#10;X | https://x.com/username"><%= socialText %></textarea>
           <small>كل سطر بهذا الشكل: اسم المنصة | الرابط. اتركها فارغة إذا لا تريد إظهار الحسابات.</small>
+        </label>
+        <label>
+          التصنيفات
+          <textarea name="categories" rows="5" placeholder="مقالات&#10;دراسات&#10;تحليلات"><%= categoriesText %></textarea>
+          <small>كل تصنيف في سطر مستقل، وسيظهر داخل نموذج المقالات وصفحة المقالات.</small>
         </label>
         <label>
           القائمة

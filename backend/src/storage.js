@@ -9,6 +9,7 @@ const defaultSettings = {
   siteName: "مركز جمعة للدراسات",
   authorName: "د. جمعة",
   logoUrl: "",
+  heroImageUrl: "",
   heroTitle: "قراءات سياسية رصينة وتحليلات معمقة",
   heroSubtitle:
     "منصة شخصية لنشر المقالات والدراسات السياسية بلغة واضحة، وتصميم رسمي يليق بالمحتوى وصاحبه.",
@@ -16,6 +17,7 @@ const defaultSettings = {
     "هذه المساحة مخصصة للتعريف بالباحث، مسيرته الأكاديمية والسياسية، واهتماماته البحثية. يمكن تعديل هذا النص بالكامل من لوحة التحكم.",
   footerText: "جميع الحقوق محفوظة.",
   socialLinks: [],
+  categories: ["مقالات", "دراسات", "تحليلات"],
   menu: [
     { label: "الرئيسية", href: "/" },
     { label: "المقالات", href: "/articles" },
@@ -30,6 +32,7 @@ const defaultArticles = [
     title: "عنوان مقال نموذجي للتحرير",
     excerpt: "ملخص قصير يظهر في صفحة المقالات والصفحة الرئيسية ويمكن استبداله من لوحة التحكم.",
     author: "د. جمعة",
+    category: "مقالات",
     coverImage: "",
     body:
       "هذا نص تجريبي لمقال سياسي. يمكن استخدام تنسيق Markdown البسيط داخل جسم المقال، مثل العناوين والقوائم والروابط.\n\n## عنوان فرعي\n\nاكتب هنا الفكرة الأساسية، ثم وسعها بفقرات واضحة ومترابطة.",
@@ -77,7 +80,8 @@ function writeSettings(settings) {
     ...defaultSettings,
     ...settings,
     menu: settings.menu && settings.menu.length ? settings.menu : defaultSettings.menu,
-    socialLinks: settings.socialLinks || []
+    socialLinks: settings.socialLinks || [],
+    categories: settings.categories && settings.categories.length ? settings.categories : defaultSettings.categories
   });
 }
 

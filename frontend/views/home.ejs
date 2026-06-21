@@ -11,14 +11,11 @@
         <a class="button ghost" href="/about">من نحن</a>
       </div>
     </div>
-    <% if (featured) { %>
-      <aside class="featured-panel" aria-label="أحدث مقال">
-        <span>أحدث مقال</span>
-        <h2><a href="/articles/<%= featured.slug || featured.id %>"><%= featured.title %></a></h2>
-        <p><%= featured.excerpt %></p>
-        <a class="text-link light" href="/articles/<%= featured.slug || featured.id %>">قراءة التحليل كاملاً</a>
-      </aside>
-    <% } %>
+    <div class="hero-person" aria-label="الصورة الشخصية">
+      <% if (settings.heroImageUrl) { %>
+        <img src="<%= settings.heroImageUrl %>" alt="<%= settings.authorName %>">
+      <% } %>
+    </div>
   </div>
 </section>
 

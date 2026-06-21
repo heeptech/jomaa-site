@@ -10,6 +10,9 @@
     </time>
     <span><%= article.author %></span>
   </div>
+  <% if (article.category) { %>
+    <span class="category-badge"><%= article.category %></span>
+  <% } %>
   <h3><a href="/articles/<%= article.slug || article.id %>"><%= article.title %></a></h3>
   <p><%= article.excerpt %></p>
   <a class="text-link" href="/articles/<%= article.slug || article.id %>">قراءة المقال</a>

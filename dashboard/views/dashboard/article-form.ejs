@@ -38,14 +38,22 @@
               <option value="draft" <%= article && article.status === "draft" ? "selected" : "" %>>مسودة</option>
             </select>
           </label>
+          <label>
+            التصنيف
+            <select name="category">
+              <option value="">بدون تصنيف</option>
+              <% categories.forEach((cat) => { %>
+                <option value="<%= cat %>" <%= article && article.category === cat ? "selected" : "" %>><%= cat %></option>
+              <% }) %>
+            </select>
+          </label>
         </div>
         <div class="field-block">
-          نص المقال
           <div class="form-grid">
             <label>
               الصورة الرئيسية للمقال
               <input type="file" name="coverImage" accept="image/*">
-              <small>تظهر في صفحة المقالات وداخل المقال.</small>
+              <small>تظهر في صفحة المقالات وداخل المقال، مع قياس ثابت يحافظ على التصميم.</small>
             </label>
             <label>
               رابط الصورة الرئيسية
@@ -64,8 +72,11 @@
             <input type="file" name="inlineImage" accept="image/*">
             <small>عند الحفظ ستضاف الصورة داخل نص المقال، ويمكن نقل سطر الصورة لأي مكان داخل النص لاحقاً.</small>
           </label>
-          <textarea class="body-editor" name="body" rows="18" required><%= article ? article.body : '' %></textarea>
         </div>
+        <label>
+          نص المقال
+          <textarea class="body-editor" name="body" rows="18" required><%= article ? article.body : '' %></textarea>
+        </label>
         <div class="form-actions">
           <button class="button primary" type="submit">حفظ</button>
           <a class="button ghost" href="/dashboard">إلغاء</a>

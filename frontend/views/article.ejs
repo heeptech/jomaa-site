@@ -7,6 +7,9 @@
         <%= formatDate(article.publishedAt || article.createdAt) %>
       </time>
       <span><%= article.author %></span>
+      <% if (article.category) { %>
+        <span class="category-badge"><%= article.category %></span>
+      <% } %>
     </div>
     <h1><%= article.title %></h1>
     <p><%= article.excerpt %></p>

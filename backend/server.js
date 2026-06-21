@@ -207,6 +207,13 @@ function normalizeSocialLinks(socialText) {
     .filter((item) => item.label && item.url);
 }
 
+function normalizeCategories(categoriesText) {
+  return categoriesText
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
 function socialIcon(label = "", url = "") {
   const name = label.trim().toLowerCase();
   const link = url.trim().toLowerCase();
@@ -267,19 +274,24 @@ app.get("/", (req, res) => {
 
 app.get("/articles", (req, res) => {
   const query = String(req.query.q || "").trim().toLowerCase();
+  const category = String(req.query.category || "").trim();
   const articles = getPublishedArticles();
-  const filtered = query
-    ? articles.filter((article) =>
-        [article.title, article.excerpt, article.body, article.author]
+  const filtered = articles.filter((article) => {
+    const matchesQuery = query
+      ? [article.title, article.excerpt, article.body, article.author, article.category]
           .join(" ")
           .toLowerCase()
           .includes(query)
-      )
-    : articles;
+      : true;
+    const matchesCategory = category ? article.category === category : true;
+    return matchesQuery && matchesCategory;
+  });
 
   res.render("articles", {
     title: "المقالات",
     query,
+    category,
+    categories: res.locals.settings.categories || [],
     articles: filtered
   });
 });
@@ -357,7 +369,8 @@ app.get("/dashboard", requireAuth, (req, res) => {
 app.get("/dashboard/articles/new", requireAuth, (req, res) => {
   res.render("dashboard/article-form", {
     title: "مقال جديد",
-    article: null
+    article: null,
+    categories: res.locals.settings.categories || []
   });
 });
 
@@ -377,6 +390,7 @@ app.post("/dashboard/articles", requireAuth, articleUpload, csrfProtection, (req
     title: req.body.title.trim(),
     excerpt: req.body.excerpt.trim(),
     author: req.body.author.trim() || res.locals.settings.authorName,
+    category: (req.body.category || "").trim(),
     coverImage: uploadedPath(coverFile) || (req.body.coverImageUrl || "").trim(),
     body: withInlineImage(req.body.body, inlineFile),
     status: req.body.status === "draft" ? "draft" : "published",
@@ -396,7 +410,8 @@ app.get("/dashboard/articles/:id/edit", requireAuth, (req, res) => {
 
   res.render("dashboard/article-form", {
     title: "تعديل مقال",
-    article
+    article,
+    categories: res.locals.settings.categories || []
   });
 });
 
@@ -415,6 +430,7 @@ app.post("/dashboard/articles/:id", requireAuth, articleUpload, csrfProtection, 
     title: req.body.title.trim(),
     excerpt: req.body.excerpt.trim(),
     author: req.body.author.trim() || res.locals.settings.authorName,
+    category: (req.body.category || "").trim(),
     coverImage: uploadedPath(coverFile) || (req.body.coverImageUrl || "").trim() || previous.coverImage || "",
     body: withInlineImage(req.body.body, inlineFile),
     status,
@@ -442,22 +458,32 @@ app.get("/dashboard/settings", requireAuth, (req, res) => {
       .join("\n"),
     socialText: (settings.socialLinks || [])
       .map((item) => `${item.label} | ${item.url}`)
-      .join("\n")
+      .join("\n"),
+    categoriesText: (settings.categories || []).join("\n")
   });
 });
 
-app.post("/dashboard/settings", requireAuth, upload.single("logoFile"), csrfProtection, (req, res) => {
+const settingsUpload = upload.fields([
+  { name: "logoFile", maxCount: 1 },
+  { name: "heroImageFile", maxCount: 1 }
+]);
+
+app.post("/dashboard/settings", requireAuth, settingsUpload, csrfProtection, (req, res) => {
   const currentSettings = readSettings();
+  const logoFile = req.files && req.files.logoFile ? req.files.logoFile[0] : null;
+  const heroImageFile = req.files && req.files.heroImageFile ? req.files.heroImageFile[0] : null;
   const nextSettings = {
     siteName: req.body.siteName.trim(),
     authorName: req.body.authorName.trim(),
-    logoUrl: req.file ? `/uploads/${req.file.filename}` : (req.body.logoUrl || currentSettings.logoUrl || "").trim(),
+    logoUrl: uploadedPath(logoFile) || (req.body.logoUrl || currentSettings.logoUrl || "").trim(),
+    heroImageUrl: uploadedPath(heroImageFile) || (req.body.heroImageUrl || currentSettings.heroImageUrl || "").trim(),
     heroTitle: req.body.heroTitle.trim(),
     heroSubtitle: req.body.heroSubtitle.trim(),
     aboutBody: req.body.aboutBody.trim(),
     footerText: req.body.footerText.trim(),
     menu: normalizeMenu(req.body.menu || ""),
-    socialLinks: normalizeSocialLinks(req.body.socialLinks || "")
+    socialLinks: normalizeSocialLinks(req.body.socialLinks || ""),
+    categories: normalizeCategories(req.body.categories || "")
   };
 
   writeSettings(nextSettings);

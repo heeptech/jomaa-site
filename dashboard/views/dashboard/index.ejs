@@ -37,6 +37,9 @@
                 <td>
                   <strong><%= article.title %></strong>
                   <small>ID: <%= article.id %></small>
+                  <% if (article.category) { %>
+                    <small>التصنيف: <%= article.category %></small>
+                  <% } %>
                 </td>
                 <td><span class="status <%= article.status %>"><%= article.status === "published" ? "منشور" : "مسودة" %></span></td>
                 <td><%= formatDate(article.updatedAt || article.createdAt) %></td>

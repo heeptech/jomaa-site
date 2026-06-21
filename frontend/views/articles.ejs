@@ -5,16 +5,27 @@
     <p class="eyebrow">الأرشيف</p>
     <h1>جميع المقالات</h1>
     <form class="search-form" action="/articles" method="get">
+      <% if (category) { %>
+        <input type="hidden" name="category" value="<%= category %>">
+      <% } %>
       <input type="search" name="q" value="<%= query %>" placeholder="ابحث في العنوان أو النص أو الكاتب" aria-label="البحث في المقالات">
       <button class="button primary" type="submit">بحث</button>
     </form>
+    <% if (categories && categories.length) { %>
+      <div class="category-filter" aria-label="تصنيفات المقالات">
+        <a class="<%= !category ? 'active' : '' %>" href="/articles<%= query ? `?q=${encodeURIComponent(query)}` : '' %>">الكل</a>
+        <% categories.forEach((cat) => { %>
+          <a class="<%= category === cat ? 'active' : '' %>" href="/articles?category=<%= encodeURIComponent(cat) %><%= query ? `&q=${encodeURIComponent(query)}` : '' %>"><%= cat %></a>
+        <% }) %>
+      </div>
+    <% } %>
   </div>
 </section>
 
 <section class="section">
   <div class="container results-line">
-    <p><%= articles.length %> نتيجة<%= query ? ` عن "${query}"` : "" %></p>
-    <% if (query) { %>
+    <p><%= articles.length %> نتيجة<%= query ? ` عن "${query}"` : "" %><%= category ? ` - ${category}` : "" %></p>
+    <% if (query || category) { %>
       <a class="text-link" href="/articles">مسح البحث</a>
     <% } %>
   </div>
