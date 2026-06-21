@@ -1,0 +1,54 @@
+<%- include("../partials/head") %>
+
+<section class="dashboard-shell">
+  <div class="container dashboard-layout">
+    <aside class="dashboard-sidebar">
+      <h1>لوحة التحكم</h1>
+      <a href="/dashboard">المقالات</a>
+      <a href="/dashboard/settings">إعدادات الموقع</a>
+      <a href="/">عرض الموقع</a>
+    </aside>
+    <section class="dashboard-content">
+      <div class="dashboard-topline">
+        <div>
+          <p class="eyebrow">تحرير المقال</p>
+          <h2><%= article ? "تعديل مقال" : "مقال جديد" %></h2>
+        </div>
+      </div>
+
+      <form class="editor-form" action="<%= article ? `/dashboard/articles/${article.id}` : '/dashboard/articles' %>" method="post">
+        <label>
+          عنوان المقال
+          <input type="text" name="title" value="<%= article ? article.title : '' %>" required>
+        </label>
+        <label>
+          ملخص قصير
+          <textarea name="excerpt" rows="3" maxlength="280" required><%= article ? article.excerpt : '' %></textarea>
+        </label>
+        <div class="form-grid">
+          <label>
+            الكاتب
+            <input type="text" name="author" value="<%= article ? article.author : settings.authorName %>">
+          </label>
+          <label>
+            الحالة
+            <select name="status">
+              <option value="published" <%= !article || article.status === "published" ? "selected" : "" %>>منشور</option>
+              <option value="draft" <%= article && article.status === "draft" ? "selected" : "" %>>مسودة</option>
+            </select>
+          </label>
+        </div>
+        <label>
+          نص المقال
+          <textarea class="body-editor" name="body" rows="18" required><%= article ? article.body : '' %></textarea>
+        </label>
+        <div class="form-actions">
+          <button class="button primary" type="submit">حفظ</button>
+          <a class="button ghost" href="/dashboard">إلغاء</a>
+        </div>
+      </form>
+    </section>
+  </div>
+</section>
+
+<%- include("../partials/footer") %>

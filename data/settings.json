@@ -1,0 +1,37 @@
+{
+  "siteName": "جمعة محمد لهيب",
+  "authorName": "أ. جمعة",
+  "logoUrl": "/uploads/logo-1782059196655.png",
+  "heroTitle": "عنوان تعريفي عريض",
+  "heroSubtitle": "منصة شخصية لنشر المقالات والدراسات السياسية.",
+  "aboutBody": "هذه المساحة مخصصة للتعريف بالباحث، مسيرته الأكاديمية والسياسية، واهتماماته البحثية. يمكن تعديل هذا النص بالكامل من لوحة التحكم.",
+  "footerText": "جميع الحقوق محفوظة.",
+  "socialLinks": [
+    {
+      "label": "Faceook",
+      "url": "https://www.facebook.com/user123456"
+    },
+    {
+      "label": "X",
+      "url": "https://www.facebook.com/user123456"
+    },
+    {
+      "label": "Instagram",
+      "url": "https://www.facebook.com/user123456"
+    }
+  ],
+  "menu": [
+    {
+      "label": "الرئيسية",
+      "href": "/"
+    },
+    {
+      "label": "المقالات",
+      "href": "/articles"
+    },
+    {
+      "label": "من نحن",
+      "href": "/about"
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+<%- include("../partials/head") %>
+
+<section class="dashboard-shell">
+  <div class="container dashboard-layout">
+    <aside class="dashboard-sidebar">
+      <h1>لوحة التحكم</h1>
+      <a href="/dashboard">المقالات</a>
+      <a class="active" href="/dashboard/settings">إعدادات الموقع</a>
+      <a href="/">عرض الموقع</a>
+      <form action="/dashboard/logout" method="post">
+        <button type="submit">تسجيل الخروج</button>
+      </form>
+    </aside>
+    <section class="dashboard-content">
+      <div class="dashboard-topline">
+        <div>
+          <p class="eyebrow">أقسام الموقع</p>
+          <h2>إعدادات النصوص والقائمة</h2>
+        </div>
+      </div>
+
+      <form class="editor-form" action="/dashboard/settings" method="post" enctype="multipart/form-data">
+        <div class="form-grid">
+          <label>
+            اسم الموقع
+            <input type="text" name="siteName" value="<%= settings.siteName %>" required>
+          </label>
+          <label>
+            اسم الكاتب الافتراضي
+            <input type="text" name="authorName" value="<%= settings.authorName %>" required>
+          </label>
+        </div>
+        <div class="form-grid">
+          <label>
+            رفع صورة اللوغو
+            <input type="file" name="logoFile" accept="image/*">
+            <small>اختياري. إذا رفعت صورة جديدة ستصبح هي اللوغو.</small>
+          </label>
+          <label>
+            رابط صورة اللوغو
+            <input type="text" name="logoUrl" value="<%= settings.logoUrl || '' %>" placeholder="/uploads/logo.png أو https://...">
+            <small>اتركه فارغاً إذا كنت تريد الشعار النصي فقط.</small>
+          </label>
+        </div>
+        <% if (settings.logoUrl) { %>
+          <div class="logo-preview">
+            <span>اللوغو الحالي</span>
+            <img src="<%= settings.logoUrl %>" alt="اللوغو الحالي">
+          </div>
+        <% } %>
+        <label>
+          عنوان الصفحة الرئيسية
+          <input type="text" name="heroTitle" value="<%= settings.heroTitle %>" required>
+        </label>
+        <label>
+          النص التعريفي في الصفحة الرئيسية
+          <textarea name="heroSubtitle" rows="3" required><%= settings.heroSubtitle %></textarea>
+        </label>
+        <label>
+          نص صفحة من نحن
+          <textarea class="body-editor" name="aboutBody" rows="12" required><%= settings.aboutBody %></textarea>
+        </label>
+        <label>
+          حسابات السوشال ميديا في صفحة من نحن
+          <textarea name="socialLinks" rows="5" placeholder="Facebook | https://facebook.com/username&#10;X | https://x.com/username"><%= socialText %></textarea>
+          <small>كل سطر بهذا الشكل: اسم المنصة | الرابط. اتركها فارغة إذا لا تريد إظهار الحسابات.</small>
+        </label>
+        <label>
+          القائمة
+          <textarea name="menu" rows="5" required><%= menuText %></textarea>
+          <small>كل سطر بهذا الشكل: الاسم | الرابط</small>
+        </label>
+        <label>
+          نص نهاية الموقع
+          <input type="text" name="footerText" value="<%= settings.footerText %>" required>
+        </label>
+        <div class="form-actions">
+          <button class="button primary" type="submit">حفظ الإعدادات</button>
+        </div>
+      </form>
+    </section>
+  </div>
+</section>
+
+<%- include("../partials/footer") %>

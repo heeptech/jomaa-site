@@ -1,0 +1,22 @@
+<%- include("../partials/head") %>
+
+<section class="auth-shell">
+  <form class="auth-card" action="/dashboard/login" method="post">
+    <p class="eyebrow">لوحة التحكم</p>
+    <h1>تسجيل الدخول</h1>
+    <% if (error) { %>
+      <p class="form-error"><%= error %></p>
+    <% } %>
+    <label>
+      اسم المستخدم
+      <input type="text" name="username" autocomplete="username" required>
+    </label>
+    <label>
+      كلمة المرور
+      <input type="password" name="password" autocomplete="current-password" required>
+    </label>
+    <button class="button primary full" type="submit">دخول</button>
+  </form>
+</section>
+
+<%- include("../partials/footer") %>

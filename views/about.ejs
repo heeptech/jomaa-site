@@ -1,0 +1,28 @@
+<%- include("partials/head") %>
+
+<section class="page-hero">
+  <div class="container narrow">
+    <p class="eyebrow">تعريف</p>
+    <h1>من نحن</h1>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container narrow prose">
+    <%- aboutHtml %>
+    <% if (socialLinks && socialLinks.length) { %>
+      <div class="about-social">
+        <h2>حسابات التواصل</h2>
+        <div class="social-icons">
+          <% socialLinks.forEach((item) => { %>
+            <a href="<%= item.url %>" target="_blank" rel="noopener" aria-label="<%= item.label %>" title="<%= item.label %>">
+              <%- socialIcon(item.label, item.url) %>
+            </a>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<%- include("partials/footer") %>

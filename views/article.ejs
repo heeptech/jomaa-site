@@ -1,0 +1,29 @@
+<%- include("partials/head") %>
+
+<article class="article-page">
+  <header class="article-head container narrow">
+    <div class="article-meta">
+      <time datetime="<%= article.publishedAt || article.createdAt %>">
+        <%= new Date(article.publishedAt || article.createdAt).toLocaleDateString("ar-SY", { year: "numeric", month: "long", day: "numeric" }) %>
+      </time>
+      <span><%= article.author %></span>
+    </div>
+    <h1><%= article.title %></h1>
+    <p><%= article.excerpt %></p>
+  </header>
+  <div class="container narrow article-body">
+    <%- article.html %>
+  </div>
+  <footer class="container narrow share-box">
+    <h2>مشاركة المقال</h2>
+    <div class="share-links">
+      <a href="https://www.facebook.com/sharer/sharer.php?u=<%= encodeURIComponent(shareUrl) %>" target="_blank" rel="noopener">Facebook</a>
+      <a href="https://twitter.com/intent/tweet?url=<%= encodeURIComponent(shareUrl) %>&text=<%= encodeURIComponent(article.title) %>" target="_blank" rel="noopener">X</a>
+      <a href="https://www.linkedin.com/sharing/share-offsite/?url=<%= encodeURIComponent(shareUrl) %>" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://wa.me/?text=<%= encodeURIComponent(`${article.title} ${shareUrl}`) %>" target="_blank" rel="noopener">WhatsApp</a>
+      <button type="button" data-copy-link="<%= shareUrl %>">نسخ الرابط</button>
+    </div>
+  </footer>
+</article>
+
+<%- include("partials/footer") %>

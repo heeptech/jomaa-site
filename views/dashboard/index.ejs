@@ -1,0 +1,60 @@
+<%- include("../partials/head") %>
+
+<section class="dashboard-shell">
+  <div class="container dashboard-layout">
+    <aside class="dashboard-sidebar">
+      <h1>لوحة التحكم</h1>
+      <a class="active" href="/dashboard">المقالات</a>
+      <a href="/dashboard/settings">إعدادات الموقع</a>
+      <a href="/">عرض الموقع</a>
+      <form action="/dashboard/logout" method="post">
+        <button type="submit">تسجيل الخروج</button>
+      </form>
+    </aside>
+    <section class="dashboard-content">
+      <div class="dashboard-topline">
+        <div>
+          <p class="eyebrow">إدارة المحتوى</p>
+          <h2>المقالات</h2>
+        </div>
+        <a class="button primary" href="/dashboard/articles/new">مقال جديد</a>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>العنوان</th>
+              <th>الحالة</th>
+              <th>آخر تعديل</th>
+              <th>الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% articles.forEach((article) => { %>
+              <tr>
+                <td>
+                  <strong><%= article.title %></strong>
+                  <small>ID: <%= article.id %></small>
+                </td>
+                <td><span class="status <%= article.status %>"><%= article.status === "published" ? "منشور" : "مسودة" %></span></td>
+                <td><%= new Date(article.updatedAt || article.createdAt).toLocaleDateString("ar-SY") %></td>
+                <td class="actions-cell">
+                  <a href="/dashboard/articles/<%= article.id %>/edit">تعديل</a>
+                  <% if (article.status === "published") { %>
+                    <a href="/articles/<%= article.slug || article.id %>" target="_blank" rel="noopener">عرض</a>
+                  <% } %>
+                  <form action="/dashboard/articles/<%= article.id %>/delete" method="post" data-confirm="حذف المقال؟">
+                    <button type="submit">حذف</button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</section>
+
+<%- include("../partials/footer") %>

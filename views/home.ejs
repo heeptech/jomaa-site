@@ -1,0 +1,37 @@
+<%- include("partials/head") %>
+
+<section class="hero">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow">منصة مقالات ودراسات</p>
+      <h1><%= settings.heroTitle %></h1>
+      <p><%= settings.heroSubtitle %></p>
+      <div class="hero-actions">
+        <a class="button primary" href="/articles">تصفح المقالات</a>
+        <a class="button ghost" href="/about">من نحن</a>
+      </div>
+    </div>
+    <% if (featured) { %>
+      <aside class="featured-panel" aria-label="أحدث مقال">
+        <span>أحدث مقال</span>
+        <h2><a href="/articles/<%= featured.slug || featured.id %>"><%= featured.title %></a></h2>
+        <p><%= featured.excerpt %></p>
+        <a class="text-link light" href="/articles/<%= featured.slug || featured.id %>">قراءة التحليل كاملاً</a>
+      </aside>
+    <% } %>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container section-heading">
+    <p class="eyebrow">أحدث المنشورات</p>
+    <h2>مقالات مختارة</h2>
+  </div>
+  <div class="container cards-grid">
+    <% latestArticles.forEach((article) => { %>
+      <%- include("partials/article-card", { article }) %>
+    <% }) %>
+  </div>
+</section>
+
+<%- include("partials/footer") %>
