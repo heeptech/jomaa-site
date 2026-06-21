@@ -1,7 +1,12 @@
 <article class="article-card">
+  <% if (article.coverImage) { %>
+    <a class="article-card-image" href="/articles/<%= article.slug || article.id %>">
+      <img src="<%= article.coverImage %>" alt="<%= article.title %>">
+    </a>
+  <% } %>
   <div class="article-meta">
     <time datetime="<%= article.publishedAt || article.createdAt %>">
-      <%= new Date(article.publishedAt || article.createdAt).toLocaleDateString("ar-SY", { year: "numeric", month: "long", day: "numeric" }) %>
+      <%= formatDate(article.publishedAt || article.createdAt) %>
     </time>
     <span><%= article.author %></span>
   </div>

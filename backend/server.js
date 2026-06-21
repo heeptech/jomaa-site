@@ -47,7 +47,7 @@ const upload = multer({
     destination: (req, file, cb) => cb(null, uploadsDir),
     filename: (req, file, cb) => {
       const ext = path.extname(file.originalname).toLowerCase() || ".png";
-      cb(null, `logo-${Date.now()}${ext}`);
+      cb(null, `${file.fieldname}-${Date.now()}${ext}`);
     }
   }),
   fileFilter: (req, file, cb) => {
@@ -139,6 +139,7 @@ function enrichLocals(req, res, next) {
   res.locals.isAuthed = Boolean(req.session.admin);
   res.locals.isDashboard = req.path.startsWith("/dashboard");
   res.locals.csrfToken = ensureCsrfToken(req);
+  res.locals.formatDate = formatDate;
   next();
 }
 
@@ -162,6 +163,25 @@ function makeSlug(title) {
     trim: true
   });
   return base || `article-${crypto.randomUUID().slice(0, 8)}`;
+}
+
+function formatDate(dateInput) {
+  const date = new Date(dateInput);
+  if (Number.isNaN(date.getTime())) return "";
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}/${month}/${day}`;
+}
+
+function uploadedPath(file) {
+  return file ? `/uploads/${file.filename}` : "";
+}
+
+function withInlineImage(body, file) {
+  const imagePath = uploadedPath(file);
+  if (!imagePath) return body.trim();
+  return `${body.trim()}\n\n![صورة داخل المقال](${imagePath})`;
 }
 
 function normalizeMenu(menuText) {
@@ -341,16 +361,24 @@ app.get("/dashboard/articles/new", requireAuth, (req, res) => {
   });
 });
 
-app.post("/dashboard/articles", requireAuth, (req, res) => {
+const articleUpload = upload.fields([
+  { name: "coverImage", maxCount: 1 },
+  { name: "inlineImage", maxCount: 1 }
+]);
+
+app.post("/dashboard/articles", requireAuth, articleUpload, csrfProtection, (req, res) => {
   const articles = readArticles();
   const now = new Date().toISOString();
+  const coverFile = req.files && req.files.coverImage ? req.files.coverImage[0] : null;
+  const inlineFile = req.files && req.files.inlineImage ? req.files.inlineImage[0] : null;
   const article = {
     id: crypto.randomUUID().slice(0, 12),
     slug: makeSlug(req.body.title),
     title: req.body.title.trim(),
     excerpt: req.body.excerpt.trim(),
     author: req.body.author.trim() || res.locals.settings.authorName,
-    body: req.body.body.trim(),
+    coverImage: uploadedPath(coverFile) || (req.body.coverImageUrl || "").trim(),
+    body: withInlineImage(req.body.body, inlineFile),
     status: req.body.status === "draft" ? "draft" : "published",
     createdAt: now,
     updatedAt: now,
@@ -372,20 +400,23 @@ app.get("/dashboard/articles/:id/edit", requireAuth, (req, res) => {
   });
 });
 
-app.post("/dashboard/articles/:id", requireAuth, (req, res) => {
+app.post("/dashboard/articles/:id", requireAuth, articleUpload, csrfProtection, (req, res) => {
   const articles = readArticles();
   const index = articles.findIndex((item) => item.id === req.params.id);
   if (index === -1) return res.status(404).render("404", { title: "المقال غير موجود" });
 
   const previous = articles[index];
   const status = req.body.status === "draft" ? "draft" : "published";
+  const coverFile = req.files && req.files.coverImage ? req.files.coverImage[0] : null;
+  const inlineFile = req.files && req.files.inlineImage ? req.files.inlineImage[0] : null;
   articles[index] = {
     ...previous,
     slug: previous.title === req.body.title ? previous.slug : makeSlug(req.body.title),
     title: req.body.title.trim(),
     excerpt: req.body.excerpt.trim(),
     author: req.body.author.trim() || res.locals.settings.authorName,
-    body: req.body.body.trim(),
+    coverImage: uploadedPath(coverFile) || (req.body.coverImageUrl || "").trim() || previous.coverImage || "",
+    body: withInlineImage(req.body.body, inlineFile),
     status,
     updatedAt: new Date().toISOString(),
     publishedAt: status === "published" ? previous.publishedAt || new Date().toISOString() : ""

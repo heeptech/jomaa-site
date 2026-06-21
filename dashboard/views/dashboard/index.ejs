@@ -39,7 +39,7 @@
                   <small>ID: <%= article.id %></small>
                 </td>
                 <td><span class="status <%= article.status %>"><%= article.status === "published" ? "منشور" : "مسودة" %></span></td>
-                <td><%= new Date(article.updatedAt || article.createdAt).toLocaleDateString("ar-SY") %></td>
+                <td><%= formatDate(article.updatedAt || article.createdAt) %></td>
                 <td class="actions-cell">
                   <a href="/dashboard/articles/<%= article.id %>/edit">تعديل</a>
                   <% if (article.status === "published") { %>

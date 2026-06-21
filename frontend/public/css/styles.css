@@ -308,8 +308,24 @@ select {
 }
 
 .article-card {
+  overflow: hidden;
   padding: 24px;
   box-shadow: none;
+}
+
+.article-card-image {
+  display: block;
+  margin: -24px -24px 18px;
+  aspect-ratio: 16 / 9;
+  background: var(--blue-50);
+  border-bottom: 1px solid var(--line);
+}
+
+.article-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .article-card h3 {
@@ -390,6 +406,28 @@ select:focus {
 .article-head {
   padding-bottom: 24px;
   border-bottom: 1px solid var(--line);
+}
+
+.article-cover {
+  margin-top: 28px;
+}
+
+.article-cover img,
+.article-body img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.article-cover img {
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.article-body img {
+  margin: 28px 0;
 }
 
 .article-body,
@@ -514,6 +552,14 @@ label {
 label small {
   color: var(--muted);
   font-weight: 500;
+}
+
+.field-block {
+  display: grid;
+  gap: 7px;
+  margin-bottom: 16px;
+  color: var(--blue-950);
+  font-weight: 800;
 }
 
 .form-error {

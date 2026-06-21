@@ -16,7 +16,7 @@
         </div>
       </div>
 
-      <form class="editor-form" action="<%= article ? `/dashboard/articles/${article.id}` : '/dashboard/articles' %>" method="post">
+      <form class="editor-form" action="<%= article ? `/dashboard/articles/${article.id}` : '/dashboard/articles' %>" method="post" enctype="multipart/form-data">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <label>
           عنوان المقال
@@ -39,10 +39,33 @@
             </select>
           </label>
         </div>
-        <label>
+        <div class="field-block">
           نص المقال
+          <div class="form-grid">
+            <label>
+              الصورة الرئيسية للمقال
+              <input type="file" name="coverImage" accept="image/*">
+              <small>تظهر في صفحة المقالات وداخل المقال.</small>
+            </label>
+            <label>
+              رابط الصورة الرئيسية
+              <input type="text" name="coverImageUrl" value="<%= article && article.coverImage ? article.coverImage : '' %>" placeholder="/uploads/image.png أو https://...">
+              <small>يمكن تركه فارغاً إذا رفعت صورة من الجهاز.</small>
+            </label>
+          </div>
+          <% if (article && article.coverImage) { %>
+            <div class="logo-preview">
+              <span>الصورة الرئيسية الحالية</span>
+              <img src="<%= article.coverImage %>" alt="الصورة الرئيسية الحالية">
+            </div>
+          <% } %>
+          <label>
+            صورة داخل النص
+            <input type="file" name="inlineImage" accept="image/*">
+            <small>عند الحفظ ستضاف الصورة داخل نص المقال، ويمكن نقل سطر الصورة لأي مكان داخل النص لاحقاً.</small>
+          </label>
           <textarea class="body-editor" name="body" rows="18" required><%= article ? article.body : '' %></textarea>
-        </label>
+        </div>
         <div class="form-actions">
           <button class="button primary" type="submit">حفظ</button>
           <a class="button ghost" href="/dashboard">إلغاء</a>
