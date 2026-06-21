@@ -276,23 +276,38 @@ app.get("/articles", (req, res) => {
   const query = String(req.query.q || "").trim().toLowerCase();
   const category = String(req.query.category || "").trim();
   const articles = getPublishedArticles();
+  const configuredCategories = res.locals.settings.categories || [];
+  const fallbackCategory = configuredCategories[0] || "مقالات";
+  const allCategories = [
+    ...configuredCategories,
+    ...articles.map((article) => article.category || fallbackCategory)
+  ].filter((item, index, list) => item && list.indexOf(item) === index);
+
   const filtered = articles.filter((article) => {
+    const articleCategory = article.category || fallbackCategory;
     const matchesQuery = query
-      ? [article.title, article.excerpt, article.body, article.author, article.category]
+      ? [article.title, article.excerpt, article.body, article.author, articleCategory]
           .join(" ")
           .toLowerCase()
           .includes(query)
       : true;
-    const matchesCategory = category ? article.category === category : true;
+    const matchesCategory = category ? articleCategory === category : true;
     return matchesQuery && matchesCategory;
   });
+  const categorySections = allCategories
+    .map((name) => ({
+      name,
+      articles: filtered.filter((article) => (article.category || fallbackCategory) === name)
+    }))
+    .filter((section) => section.articles.length);
 
   res.render("articles", {
     title: "المقالات",
     query,
     category,
-    categories: res.locals.settings.categories || [],
-    articles: filtered
+    categories: allCategories,
+    articles: filtered,
+    categorySections
   });
 });
 

@@ -349,6 +349,41 @@ select {
   gap: 18px;
 }
 
+.category-sections {
+  display: grid;
+  gap: 34px;
+}
+
+.category-section {
+  padding-top: 6px;
+}
+
+.category-section + .category-section {
+  padding-top: 30px;
+  border-top: 1px solid var(--line);
+}
+
+.category-section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.category-section-head h2 {
+  margin: 0;
+  color: var(--blue-950);
+  font-family: "Noto Naskh Arabic", serif;
+  font-size: 1.9rem;
+}
+
+.category-section-head span {
+  color: var(--muted);
+  font-weight: 800;
+}
+
 .article-card {
   display: flex;
   flex-direction: column;

@@ -29,18 +29,32 @@
       <a class="text-link" href="/articles">مسح البحث</a>
     <% } %>
   </div>
-  <div class="container cards-grid">
-    <% if (articles.length) { %>
-      <% articles.forEach((article) => { %>
-        <%- include("partials/article-card", { article }) %>
+
+  <% if (articles.length) { %>
+    <div class="container category-sections">
+      <% categorySections.forEach((section) => { %>
+        <section class="category-section">
+          <div class="category-section-head">
+            <p class="eyebrow">تصنيف</p>
+            <h2><%= section.name %></h2>
+            <span><%= section.articles.length %> مقال</span>
+          </div>
+          <div class="cards-grid">
+            <% section.articles.forEach((article) => { %>
+              <%- include("partials/article-card", { article }) %>
+            <% }) %>
+          </div>
+        </section>
       <% }) %>
-    <% } else { %>
+    </div>
+  <% } else { %>
+    <div class="container">
       <div class="empty-state">
         <h2>لا توجد مقالات مطابقة</h2>
         <p>جرّب كلمات بحث أخرى أو عد إلى جميع المقالات.</p>
       </div>
-    <% } %>
-  </div>
+    </div>
+  <% } %>
 </section>
 
 <%- include("partials/footer") %>
