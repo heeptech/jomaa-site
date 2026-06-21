@@ -8,6 +8,7 @@
       <a class="active" href="/dashboard/settings">إعدادات الموقع</a>
       <a href="/">عرض الموقع</a>
       <form action="/dashboard/logout" method="post">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <button type="submit">تسجيل الخروج</button>
       </form>
     </aside>
@@ -20,6 +21,7 @@
       </div>
 
       <form class="editor-form" action="/dashboard/settings" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <div class="form-grid">
           <label>
             اسم الموقع

@@ -26,6 +26,18 @@ ADMIN_USER=admin
 ADMIN_PASS=change-this-password
 ```
 
+في الإنتاج استخدم `SESSION_SECRET` طويل وعشوائي، وغيّر `ADMIN_PASS`. يمكن أيضاً استخدام كلمة مرور مشفرة بدل النص الصريح:
+
+```bash
+node -e "const bcrypt=require('bcryptjs'); console.log(bcrypt.hashSync('your-password', 12))"
+```
+
+ثم ضع الناتج في:
+
+```text
+ADMIN_PASS_HASH=...
+```
+
 رابط لوحة التحكم:
 
 ```text

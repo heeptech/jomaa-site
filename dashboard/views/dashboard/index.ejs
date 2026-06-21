@@ -8,6 +8,7 @@
       <a href="/dashboard/settings">إعدادات الموقع</a>
       <a href="/">عرض الموقع</a>
       <form action="/dashboard/logout" method="post">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <button type="submit">تسجيل الخروج</button>
       </form>
     </aside>
@@ -45,6 +46,7 @@
                     <a href="/articles/<%= article.slug || article.id %>" target="_blank" rel="noopener">عرض</a>
                   <% } %>
                   <form action="/dashboard/articles/<%= article.id %>/delete" method="post" data-confirm="حذف المقال؟">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <button type="submit">حذف</button>
                   </form>
                 </td>

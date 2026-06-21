@@ -2,6 +2,7 @@
 
 <section class="auth-shell">
   <form class="auth-card" action="/dashboard/login" method="post">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
     <p class="eyebrow">لوحة التحكم</p>
     <h1>تسجيل الدخول</h1>
     <% if (error) { %>

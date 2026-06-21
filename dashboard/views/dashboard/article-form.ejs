@@ -17,6 +17,7 @@
       </div>
 
       <form class="editor-form" action="<%= article ? `/dashboard/articles/${article.id}` : '/dashboard/articles' %>" method="post">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <label>
           عنوان المقال
           <input type="text" name="title" value="<%= article ? article.title : '' %>" required>

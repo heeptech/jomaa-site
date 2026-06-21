@@ -1,9 +1,12 @@
 const path = require("path");
 const crypto = require("crypto");
 const fs = require("fs");
+const bcrypt = require("bcryptjs");
 const express = require("express");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 const MarkdownIt = require("markdown-it");
 const multer = require("multer");
 const slugify = require("slugify");
@@ -19,7 +22,9 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const ADMIN_USER = process.env.ADMIN_USER || "admin";
 const ADMIN_PASS = process.env.ADMIN_PASS || "admin123";
+const ADMIN_PASS_HASH = process.env.ADMIN_PASS_HASH || "";
 const SESSION_SECRET = process.env.SESSION_SECRET || "replace-this-secret";
+const isProduction = process.env.NODE_ENV === "production";
 const frontendDir = path.join(__dirname, "..", "frontend");
 const dashboardDir = path.join(__dirname, "..", "dashboard");
 const publicDir = path.join(frontendDir, "public");
@@ -33,6 +38,10 @@ const markdown = new MarkdownIt({
 ensureDataFiles();
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
+if (isProduction && (SESSION_SECRET === "replace-this-secret" || ADMIN_PASS === "admin123") && !ADMIN_PASS_HASH) {
+  throw new Error("Set strong SESSION_SECRET and ADMIN_PASS or ADMIN_PASS_HASH before running in production.");
+}
+
 const upload = multer({
   storage: multer.diskStorage({
     destination: (req, file, cb) => cb(null, uploadsDir),
@@ -42,29 +51,77 @@ const upload = multer({
     }
   }),
   fileFilter: (req, file, cb) => {
-    if (file.mimetype && file.mimetype.startsWith("image/")) return cb(null, true);
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"];
+    if (allowedTypes.includes(file.mimetype)) return cb(null, true);
     return cb(new Error("Only image files are allowed."));
   },
   limits: { fileSize: 1024 * 1024 * 3 }
 });
 
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 8,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: "Too many login attempts. Please try again later."
+});
+
+function ensureCsrfToken(req) {
+  if (!req.session.csrfToken) {
+    req.session.csrfToken = crypto.randomBytes(32).toString("hex");
+  }
+  return req.session.csrfToken;
+}
+
+function csrfProtection(req, res, next) {
+  if (req.method === "GET" || req.method === "HEAD" || req.method === "OPTIONS") return next();
+  if ((req.headers["content-type"] || "").startsWith("multipart/form-data")) return next();
+  const expected = req.session.csrfToken;
+  const received = req.body && req.body._csrf;
+  if (expected && received && safeCompare(received, expected)) {
+    return next();
+  }
+  return res.status(403).render("404", { title: "طلب غير صالح" });
+}
+
+function safeCompare(a = "", b = "") {
+  const left = Buffer.from(a);
+  const right = Buffer.from(b);
+  if (left.length !== right.length) return false;
+  return crypto.timingSafeEqual(left, right);
+}
+
+async function verifyAdminPassword(password = "") {
+  if (ADMIN_PASS_HASH) return bcrypt.compare(password, ADMIN_PASS_HASH);
+  return safeCompare(password, ADMIN_PASS);
+}
+
+app.set("trust proxy", 1);
+app.disable("x-powered-by");
 app.set("view engine", "ejs");
 app.set("views", [
   path.join(frontendDir, "views"),
   path.join(dashboardDir, "views")
 ]);
-app.use(express.static(publicDir));
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(
+  helmet({
+    contentSecurityPolicy: false
+  })
+);
+app.use(express.static(publicDir, { maxAge: "1h", etag: true }));
+app.use(express.urlencoded({ extended: true, limit: "1mb" }));
+app.use(express.json({ limit: "1mb" }));
 app.use(cookieParser());
 app.use(
   session({
+    name: "jomaa.sid",
     secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      sameSite: "lax",
+      secure: isProduction,
+      sameSite: "strict",
       maxAge: 1000 * 60 * 60 * 8
     }
   })
@@ -81,12 +138,20 @@ function enrichLocals(req, res, next) {
   res.locals.currentPath = req.path;
   res.locals.isAuthed = Boolean(req.session.admin);
   res.locals.isDashboard = req.path.startsWith("/dashboard");
+  res.locals.csrfToken = ensureCsrfToken(req);
   next();
 }
 
 function requireAuth(req, res, next) {
   if (req.session.admin) return next();
   return res.redirect("/dashboard/login");
+}
+
+function noStoreDashboard(req, res, next) {
+  if (req.path.startsWith("/dashboard")) {
+    res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
+  }
+  next();
 }
 
 function makeSlug(title) {
@@ -168,6 +233,8 @@ function socialIcon(label = "", url = "") {
 }
 
 app.use(enrichLocals);
+app.use(noStoreDashboard);
+app.use(csrfProtection);
 
 app.get("/", (req, res) => {
   const articles = getPublishedArticles();
@@ -230,22 +297,31 @@ app.get("/dashboard/login", (req, res) => {
   });
 });
 
-app.post("/dashboard/login", (req, res) => {
+app.post("/dashboard/login", loginLimiter, async (req, res) => {
   const { username, password } = req.body;
-  if (username === ADMIN_USER && password === ADMIN_PASS) {
-    req.session.admin = { username };
-    return res.redirect("/dashboard");
+  if (safeCompare(username || "", ADMIN_USER) && await verifyAdminPassword(password || "")) {
+    req.session.regenerate((error) => {
+      if (error) return res.status(500).render("404", { title: "خطأ في الجلسة" });
+      req.session.admin = { username };
+      ensureCsrfToken(req);
+      return res.redirect("/dashboard");
+    });
+    return;
   }
 
   return res.status(401).render("dashboard/login", {
-    title: "تسجيل الدخول",
-    error: "بيانات الدخول غير صحيحة."
+    title: "Login",
+    error: "Invalid username or password."
   });
 });
 
 app.post("/dashboard/logout", requireAuth, (req, res) => {
-  req.session.destroy(() => res.redirect("/"));
+  req.session.destroy(() => {
+    res.clearCookie("jomaa.sid");
+    res.redirect("/");
+  });
 });
+
 
 app.get("/dashboard", requireAuth, (req, res) => {
   const articles = readArticles().sort(
@@ -339,7 +415,7 @@ app.get("/dashboard/settings", requireAuth, (req, res) => {
   });
 });
 
-app.post("/dashboard/settings", requireAuth, upload.single("logoFile"), (req, res) => {
+app.post("/dashboard/settings", requireAuth, upload.single("logoFile"), csrfProtection, (req, res) => {
   const currentSettings = readSettings();
   const nextSettings = {
     siteName: req.body.siteName.trim(),
