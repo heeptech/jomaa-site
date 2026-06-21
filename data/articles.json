@@ -1,5 +1,7 @@
 [
   {
+    "category": "مقالات",
+    "coverImage": "",
     "id": "ff2ebc92-937",
     "slug": "anwan-almqal",
     "title": "عنوان المقال",
@@ -12,6 +14,8 @@
     "publishedAt": "2026-06-21T14:02:19.144Z"
   },
   {
+    "category": "مقالات",
+    "coverImage": "",
     "id": "sample-article",
     "slug": "sample-article",
     "title": "عنوان مقال نموذجي للتحرير",
