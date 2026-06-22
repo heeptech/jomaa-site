@@ -18,6 +18,7 @@
 
       <form class="editor-form" action="<%= article ? `/dashboard/articles/${article.id}` : '/dashboard/articles' %>" method="post" enctype="multipart/form-data">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <input type="hidden" name="removeCoverImage" value="">
         <label>
           عنوان المقال
           <input type="text" name="title" value="<%= article ? article.title : '' %>" required>
@@ -62,20 +63,22 @@
             </label>
           </div>
           <% if (article && article.coverImage) { %>
-            <div class="logo-preview">
+            <div class="logo-preview image-preview-block">
               <span>الصورة الرئيسية الحالية</span>
               <img src="<%= article.coverImage %>" alt="الصورة الرئيسية الحالية">
+              <button class="button danger small" type="button" data-clear-image="removeCoverImage" data-clear-input="coverImageUrl" data-clear-preview=".image-preview-block">حذف الصورة</button>
             </div>
           <% } %>
           <label>
             صورة داخل النص
-            <input type="file" name="inlineImage" accept="image/*">
-            <small>عند الحفظ ستضاف الصورة داخل نص المقال، ويمكن نقل سطر الصورة لأي مكان داخل النص لاحقاً.</small>
+            <input type="file" name="inlineImage" accept="image/*" data-inline-image-input>
+            <small>ضع مؤشر الكتابة في المكان المطلوب داخل النص، ثم اختر الصورة. ستضاف هناك عند الحفظ.</small>
           </label>
         </div>
         <label>
           نص المقال
-          <textarea class="body-editor" name="body" rows="18" required><%= article ? article.body : '' %></textarea>
+          <textarea class="body-editor" name="body" rows="18" required data-article-body><%= article ? article.body : '' %></textarea>
+          <small>يمكنك حذف أي صورة داخل النص لاحقاً بحذف سطر الصورة من النص نفسه.</small>
         </label>
         <div class="form-actions">
           <button class="button primary" type="submit">حفظ</button>

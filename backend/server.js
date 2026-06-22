@@ -180,8 +180,13 @@ function uploadedPath(file) {
 
 function withInlineImage(body, file) {
   const imagePath = uploadedPath(file);
-  if (!imagePath) return body.trim();
-  return `${body.trim()}\n\n![صورة داخل المقال](${imagePath})`;
+  const nextBody = body.trim();
+  if (!imagePath) return nextBody.replace(/\n*\[\[INLINE_IMAGE\]\]\n*/g, "\n\n");
+  const imageMarkdown = `![صورة داخل المقال](${imagePath})`;
+  if (nextBody.includes("[[INLINE_IMAGE]]")) {
+    return nextBody.replace("[[INLINE_IMAGE]]", imageMarkdown);
+  }
+  return `${nextBody}\n\n${imageMarkdown}`;
 }
 
 function normalizeMenu(menuText) {
@@ -410,7 +415,7 @@ app.post("/dashboard/articles", requireAuth, articleUpload, csrfProtection, (req
     excerpt: req.body.excerpt.trim(),
     author: req.body.author.trim() || res.locals.settings.authorName,
     category: (req.body.category || "").trim(),
-    coverImage: uploadedPath(coverFile) || (req.body.coverImageUrl || "").trim(),
+    coverImage: req.body.removeCoverImage ? "" : uploadedPath(coverFile) || (req.body.coverImageUrl || "").trim(),
     body: withInlineImage(req.body.body, inlineFile),
     status: req.body.status === "draft" ? "draft" : "published",
     createdAt: now,
@@ -450,7 +455,9 @@ app.post("/dashboard/articles/:id", requireAuth, articleUpload, csrfProtection, 
     excerpt: req.body.excerpt.trim(),
     author: req.body.author.trim() || res.locals.settings.authorName,
     category: (req.body.category || "").trim(),
-    coverImage: uploadedPath(coverFile) || (req.body.coverImageUrl || "").trim() || previous.coverImage || "",
+    coverImage: req.body.removeCoverImage
+      ? ""
+      : uploadedPath(coverFile) || (req.body.coverImageUrl || "").trim() || previous.coverImage || "",
     body: withInlineImage(req.body.body, inlineFile),
     status,
     updatedAt: new Date().toISOString(),
@@ -494,8 +501,8 @@ app.post("/dashboard/settings", requireAuth, settingsUpload, csrfProtection, (re
   const nextSettings = {
     siteName: req.body.siteName.trim(),
     authorName: req.body.authorName.trim(),
-    logoUrl: uploadedPath(logoFile) || (req.body.logoUrl || currentSettings.logoUrl || "").trim(),
-    heroImageUrl: uploadedPath(heroImageFile) || (req.body.heroImageUrl || currentSettings.heroImageUrl || "").trim(),
+    logoUrl: req.body.removeLogo ? "" : uploadedPath(logoFile) || (req.body.logoUrl || currentSettings.logoUrl || "").trim(),
+    heroImageUrl: req.body.removeHeroImage ? "" : uploadedPath(heroImageFile) || (req.body.heroImageUrl || currentSettings.heroImageUrl || "").trim(),
     heroTitle: req.body.heroTitle.trim(),
     heroSubtitle: req.body.heroSubtitle.trim(),
     aboutBody: req.body.aboutBody.trim(),

@@ -290,6 +290,24 @@ select {
   width: 100%;
 }
 
+.button.small {
+  min-height: 36px;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+}
+
+.button.danger {
+  color: #8a1f1f;
+  background: #fff1f1;
+  border-color: #f1c6c6;
+}
+
+.button.danger:hover {
+  color: #fff;
+  background: #9f1d1d;
+  border-color: #9f1d1d;
+}
+
 .featured-panel,
 .article-card,
 .auth-card,
@@ -801,6 +819,7 @@ td small {
 
 .logo-preview {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 12px;
   margin: 0 0 18px;
@@ -899,6 +918,20 @@ td small {
 
   .dashboard-sidebar {
     position: static;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .dashboard-sidebar h1 {
+    width: 100%;
+  }
+
+  .dashboard-sidebar a,
+  .dashboard-sidebar button {
+    flex: 1 1 150px;
+    text-align: center;
   }
 
   .search-form,
@@ -907,5 +940,73 @@ td small {
   .footer-inner {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .dashboard-shell {
+    padding-block: 28px;
+  }
+
+  .dashboard-content,
+  .dashboard-sidebar,
+  .auth-card {
+    padding: 16px;
+  }
+
+  .dashboard-topline .button,
+  .form-actions .button,
+  .form-actions a,
+  .actions-cell a,
+  .actions-cell button {
+    width: 100%;
+  }
+
+  .form-actions,
+  .actions-cell {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .table-wrap {
+    border: 0;
+  }
+
+  table {
+    min-width: 0;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody,
+  tr,
+  td {
+    display: block;
+    width: 100%;
+  }
+
+  tr {
+    margin-bottom: 14px;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+
+  td {
+    border-bottom: 1px solid var(--line);
+  }
+
+  td:last-child {
+    border-bottom: 0;
+  }
+
+  .body-editor {
+    min-height: 300px;
+  }
+
+  .logo-preview {
+    display: flex;
+    width: 100%;
   }
 }

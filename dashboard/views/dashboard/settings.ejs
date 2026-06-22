@@ -22,6 +22,8 @@
 
       <form class="editor-form" action="/dashboard/settings" method="post" enctype="multipart/form-data">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <input type="hidden" name="removeLogo" value="">
+        <input type="hidden" name="removeHeroImage" value="">
         <div class="form-grid">
           <label>
             اسم الموقع
@@ -46,9 +48,10 @@
           </label>
         </div>
         <% if (settings.logoUrl) { %>
-          <div class="logo-preview">
+          <div class="logo-preview logo-preview-block">
             <span>اللوغو الحالي</span>
             <img src="<%= settings.logoUrl %>" alt="اللوغو الحالي">
+            <button class="button danger small" type="button" data-clear-image="removeLogo" data-clear-input="logoUrl" data-clear-preview=".logo-preview-block">حذف اللوغو</button>
           </div>
         <% } %>
 
@@ -65,9 +68,10 @@
           </label>
         </div>
         <% if (settings.heroImageUrl) { %>
-          <div class="logo-preview hero-image-preview">
+          <div class="logo-preview hero-image-preview hero-preview-block">
             <span>الصورة الشخصية الحالية</span>
             <img src="<%= settings.heroImageUrl %>" alt="الصورة الشخصية الحالية">
+            <button class="button danger small" type="button" data-clear-image="removeHeroImage" data-clear-input="heroImageUrl" data-clear-preview=".hero-preview-block">حذف الصورة</button>
           </div>
         <% } %>
 
