@@ -1,9 +1,13 @@
 const fs = require("fs");
 const path = require("path");
 
-const dataDir = path.join(__dirname, "..", "..", "data");
+const dataDir = process.env.DATA_DIR
+  ? path.resolve(process.env.DATA_DIR)
+  : path.join(__dirname, "..", "..", "data");
 const articlesPath = path.join(dataDir, "articles.json");
 const settingsPath = path.join(dataDir, "settings.json");
+const backupsDir = path.join(dataDir, "backups");
+const maxBackupsPerFile = Number(process.env.MAX_DATA_BACKUPS || 60);
 
 const defaultSettings = {
   siteName: "مركز جمعة للدراسات",
@@ -58,9 +62,31 @@ function readJson(filePath, fallback) {
 }
 
 function writeJson(filePath, data) {
+  backupJson(filePath);
   const tmpPath = `${filePath}.tmp`;
   fs.writeFileSync(tmpPath, `${JSON.stringify(data, null, 2)}\n`, "utf8");
   fs.renameSync(tmpPath, filePath);
+}
+
+function backupJson(filePath) {
+  if (!fs.existsSync(filePath)) return;
+  if (!fs.existsSync(backupsDir)) fs.mkdirSync(backupsDir, { recursive: true });
+
+  const parsed = path.parse(filePath);
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const backupPath = path.join(backupsDir, `${parsed.name}-${stamp}.json`);
+  fs.copyFileSync(filePath, backupPath);
+
+  const prefix = `${parsed.name}-`;
+  const backups = fs
+    .readdirSync(backupsDir)
+    .filter((name) => name.startsWith(prefix) && name.endsWith(".json"))
+    .sort()
+    .reverse();
+
+  backups.slice(maxBackupsPerFile).forEach((name) => {
+    fs.rmSync(path.join(backupsDir, name), { force: true });
+  });
 }
 
 function readArticles() {
